@@ -1,0 +1,96 @@
+
+<html>
+<head>
+	<title>Map</title>
+	<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+	<script src='https://api.mapbox.com/mapbox-gl-js/v0.38.0/mapbox-gl.js'></script>
+	<link href='https://api.mapbox.com/mapbox-gl-js/v0.38.0/mapbox-gl.css' rel='stylesheet' />
+	<style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+        #menu {
+	        position: absolute;
+	        background: #fff;
+	        padding: 10px;
+	        font-family: 'Open Sans', sans-serif;
+	    }
+    </style>
+</head>
+<body>
+	<div id='map'></div>
+	<div id='menu'>
+	    <input id='basic' type='radio' name='rtoggle' value='basic'>
+	    <label for='basic'>basic</label>
+	    <input id='streets' type='radio' name='rtoggle' value='streets' checked='checked'>
+	    <label for='streets'>streets</label>
+	    <input id='bright' type='radio' name='rtoggle' value='bright'>
+	    <label for='bright'>bright</label>
+	    <input id='light' type='radio' name='rtoggle' value='light'>
+	    <label for='light'>light</label>
+	    <input id='dark' type='radio' name='rtoggle' value='dark'>
+	    <label for='dark'>dark</label>
+	    <input id='satellite' type='radio' name='rtoggle' value='satellite'>
+	    <label for='satellite'>satellite</label>
+	</div>
+
+	<script>
+		//funções auxiliares
+		function shift(coordinates, delta) {
+			return [coordinates[0] + delta[0], coordinates[1] + delta[1]];
+		}
+
+		mapboxgl.accessToken = 'pk.eyJ1IjoiaGFuam9zIiwiYSI6ImNqNGhucW4xYzAwZTAzMnIxbTV0amlvMzUifQ.mev3S39_Bzh6jcEdLcqoAA';
+
+		var HOME = [-43.179804, -22.9653776]; // casa
+
+		var map = new mapboxgl.Map({
+			container: 'map',
+			style: 'mapbox://styles/mapbox/streets-v9',
+			center: HOME, // é o inverso do Google Maps
+			zoom: 16,
+		});
+
+		// ícone
+		map.on('load', () => {
+		    map.loadImage('https://openclipart.org/image/50px/svg_to_png/177826/color-icons-green-home.png', (error, image) => {
+		        if (error) throw error;
+		        map.addImage('icon', image);
+		        map.addLayer({
+		            "id": "points",
+		            "type": "symbol",
+		            "source": {
+		                "type": "geojson",
+		                "data": {
+		                    "type": "FeatureCollection",
+		                    "features": [{
+		                        "type": "Feature",
+		                        "geometry": {
+		                            "type": "Point",
+		                            "coordinates": shift(HOME, [-0.0004, 0.00005])
+		                        }
+		                    }]
+		                }
+		            },
+		            "layout": {
+		                "icon-image": "icon",
+		                "icon-size": 1
+		            }
+		        });
+		    });
+		});
+
+		// menu
+		var layerList = document.getElementById('menu');
+		var inputs = layerList.getElementsByTagName('input');
+
+		function switchLayer(layer) {
+		    var layerId = layer.target.id;
+		    map.setStyle('mapbox://styles/mapbox/' + layerId + '-v9');
+		}
+
+		for (var i = 0; i < inputs.length; i++) {
+		    inputs[i].onclick = switchLayer;
+		}
+	</script>
+</body>
+</html>
